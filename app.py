@@ -6,8 +6,14 @@ app = Flask(__name__)
 def index():
     if request.method == 'POST':
         url_form_btn = request.form.get('recipe_url')
-        print(f"clicked url: {url_form_btn}")
-        return f"im going to use this later  {url_form_btn}"
+        print({url_form_btn})
+        response = requests.get(url_form_btn)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        full_text = soup.get_text()
+
+        return f"clicked url: {full_text}"
     else: return render_template('templates.html')
 if __name__ == '__main__':
     app.run(debug=True)
+
+
