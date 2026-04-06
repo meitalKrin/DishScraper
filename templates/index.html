@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Importer</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --bg-color: #f7f9fc;
+            --text-color: #2d3436;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary-color); }
+
+        .form-group { display: flex; flex-direction: column; gap: 10px; }
+
+        input[type="url"] {
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        label { font-size: 0.9rem; font-weight: 600; text-align: left; }
+
+        /* Results Styling */
+        .results {
+            text-align: left;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .ingredient-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ingredient-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f9f9f9;
+            font-size: 0.95rem;
+        }
+
+        .error { color: #d63031; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Import a Recipe</h1>
+    <form action="/" method="post" class="form-group">
+        <label for="recipe_url">Paste Recipe URL</label>
+        <input type="url" id="recipe_url" name="recipe_url" placeholder="https://allrecipes.com/..." required>
+        <button type="submit">Get Recipe</button>
+    </form>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if ingredients %}
+        <div class="results">
+            <h2 style="color: var(--secondary-color); font-size: 1.2rem;">Ingredients</h2>
+            <ul class="ingredient-list">
+                {% for item in ingredients %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if instructions %}
+        <div class="results">
+            <h2 style="color: var(--secondary-color); font-size: 1.2rem;">instructions</h2>
+            <ul class="instructions">
+                {% for item in instructions %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
