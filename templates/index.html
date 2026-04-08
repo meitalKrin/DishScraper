@@ -89,33 +89,16 @@
         <label for="recipe_url">Paste Recipe URL</label>
         <input type="url" id="recipe_url" name="recipe_url" placeholder="https://allrecipes.com/..." required>
         <button type="submit">Get Recipe</button>
+
     </form>
+
+<a href="{{ url_for('get_full_data') }}" class="btn">View Full Data</a>
 
     {% if error %}
         <p class="error">{{ error }}</p>
     {% endif %}
 
-    {% if ingredients %}
-        <div class="results">
-            <h2 style="color: var(--secondary-color); font-size: 1.2rem;">Ingredients</h2>
-            <ul class="ingredient-list">
-                {% for item in ingredients %}
-                    <li>{{ item }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
 
-    {% if instructions %}
-        <div class="results">
-            <h2 style="color: var(--secondary-color); font-size: 1.2rem;">instructions</h2>
-            <ul class="instructions">
-                {% for item in instructions %}
-                    <li>{{ item }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
 </div>
 
 </body>

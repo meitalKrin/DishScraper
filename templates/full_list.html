@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h3>All Saved Recipes</h3>
+<ul>
+    {# This 'title' variable matches the name you passed in render_template #}
+    {% for item in title %}
+        <li>{{ item }}</li>
+    {% else %}
+        <li>No recipes found in the database.</li>
+    {% endfor %}
+</ul>
+</body>
+</html>
