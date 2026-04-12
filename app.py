@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 ca = certifi.where()
 MONGO_URI = os.environ.get("MONGO_URI",
-                           "mongodb+srv://km:km@cluster0.0kvlnbn.mongodb.net/MyFullDB?retryWrites=true&w=majority")
+                           "mongodb+srv://km:BAIv0vB8zDkxI0x5@cluster0.0kvlnbn.mongodb.net/MyFullDB?retryWrites=true&w=majority")
 
 try:
     myclient = pymongo.MongoClient(MONGO_URI, tlsCAFile=ca)
