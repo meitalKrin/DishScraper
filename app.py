@@ -3,18 +3,23 @@ from recipe_scrapers import scrape_html
 from curl_cffi import requests as crequests
 import pymongo
 import os
+import certifi
+import gc
 
 app = Flask(__name__)
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://km:km@cluster0.0kvlnbn.mongodb.net/MyFullDB?retryWrites=true&w=majority")
+ca = certifi.where()
+MONGO_URI = os.environ.get("MONGO_URI",
+                           "mongodb+srv://km:km@cluster0.0kvlnbn.mongodb.net/MyFullDB?retryWrites=true&w=majority")
 
 try:
-    myclient = pymongo.MongoClient(MONGO_URI)
+    myclient = pymongo.MongoClient(MONGO_URI, tlsCAFile=ca)
     myDB = myclient["MyFullDB"]
     mycol = myDB["recipes"]
     myclient.admin.command('ping')
 except Exception as e:
     print(f"Connection Error: {e}")
+
 
 @app.route('/', methods=['GET', 'POST'])
 def get_recipe():
@@ -22,6 +27,7 @@ def get_recipe():
 
     if request.method == 'POST':
         url = request.form.get('recipe_url')
+        res = None
         try:
             res = crequests.get(url, impersonate="chrome110", timeout=15)
             res.raise_for_status()
@@ -44,13 +50,15 @@ def get_recipe():
 
                 try:
                     raw_ingredients = scraper.ingredients()
-                    ingredients = "\n".join([f"• {item}" for item in raw_ingredients if item]) if raw_ingredients else "No ingredients found."
+                    ingredients = "\n".join([f"• {item}" for item in raw_ingredients if
+                                             item]) if raw_ingredients else "No ingredients found."
                 except Exception:
                     ingredients = "No ingredients found."
 
                 try:
                     raw_instructions = scraper.instructions_list()
-                    instructions = "\n".join([f"{i + 1}. {step}" for i, step in enumerate(raw_instructions) if step]) if raw_instructions else "No instructions found."
+                    instructions = "\n".join([f"{i + 1}. {step}" for i, step in enumerate(raw_instructions) if
+                                              step]) if raw_instructions else "No instructions found."
                 except Exception:
                     instructions = "No instructions found."
 
@@ -71,36 +79,38 @@ def get_recipe():
                     )
                     msg = f"Saved: {title}" if result.matched_count == 0 else f"Updated: {title}"
 
+                del scraper
+
             except Exception:
                 error = "This website is not currently supported by the scraper."
 
         except Exception as e:
             error = f"Connection failed: {str(e)}"
 
+        finally:
+            if res:
+                del res
+            gc.collect()
+
     return render_template("index.html", msg=msg, error=error)
+
 
 @app.route('/get_full_data', methods=['GET'])
 def get_full_data():
     search_query = request.args.get('search')
-
     if search_query:
         regex_query = {"$regex": search_query, "$options": "i"}
-        query = {
-            "$or": [
-                {"title": regex_query},
-                {"ingredients": regex_query},
-                {"category": regex_query}
-            ]
-        }
+        query = {"$or": [{"title": regex_query}, {"ingredients": regex_query}, {"category": regex_query}]}
         recipes = list(mycol.find(query))
     else:
         recipes = list(mycol.find({}))
-
     return render_template("full_list.html", recipes=recipes)
+
 
 @app.route('/back_page', methods=['GET'])
 def back_page():
     return redirect(url_for('get_recipe'))
+
 
 @app.route('/delete_recipe')
 def delete_recipe():
@@ -109,9 +119,11 @@ def delete_recipe():
         mycol.delete_one({"url": url_to_delete})
     return redirect(url_for('get_full_data'))
 
+
 @app.route('/move_to_add_manual', methods=['GET'])
 def move_to_add_manual():
     return render_template("add_manual.html")
+
 
 @app.route('/add_manual', methods=['GET', 'POST'])
 def add_manual():
@@ -128,7 +140,7 @@ def add_manual():
             if raw_ingredients:
                 raw_ingredients = raw_ingredients.replace('  ', '\n')
                 ing_list = [i.strip() for i in raw_ingredients.split('\n') if i.strip()]
-                ingredients = "\n".join([ f"• {item}" for item in ing_list])
+                ingredients = "\n".join([f"• {item}" for item in ing_list])
             else:
                 ingredients = "No ingredients found."
 
@@ -142,26 +154,16 @@ def add_manual():
 
             result = mycol.update_one(
                 {"url": url},
-                {"$set": {
-                    "img": img,
-                    "title": title,
-                    "cook_time": cook_time,
-                    "category": category,
-                    "ingredients": ingredients,
-                    "instructions": instructions
-                }},
+                {"$set": {"img": img, "title": title, "cook_time": cook_time, "category": category,
+                          "ingredients": ingredients, "instructions": instructions}},
                 upsert=True
             )
-
-            if result.matched_count > 0:
-                msg = f"Updated existing recipe: {title}"
-            else:
-                msg = f"Successfully saved new recipe: {title}"
+            msg = f"Saved: {title}" if result.matched_count == 0 else f"Updated: {title}"
 
         except Exception as e:
             error = f"Failed to save: {str(e)}"
-
     return render_template("add_manual.html", msg=msg, error=error)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

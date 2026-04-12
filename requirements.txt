@@ -1,5 +1,7 @@
 flask
 recipe-scrapers
 curl_cffi
-pymongo
+pymongo[srv]
+certifi
+dnspython
 gunicorn
