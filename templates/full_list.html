@@ -2,17 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipe Collection</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h3>All Saved Recipes</h3>
-<ul>
-    {# This 'title' variable matches the name you passed in render_template #}
-    {% for item in title %}
-        <li>{{ item }}</li>
-    {% else %}
-        <li>No recipes found in the database.</li>
-    {% endfor %}
-</ul>
+
+    <h3>All Saved Recipes</h3>
+
+    <div style="max-width: 800px; margin: 0 auto 10px auto;">
+    <a href="{{ url_for('get_recipe') }}" class="btn-back">← Back to Add Recipes</a>
+</div>
+<div class="filter-section">
+    <form action="/get_full_data" method="GET" class="filter-form">
+        <label for="search" class="filter-label">Search Recipes:</label>
+
+        <input type="text"
+               name="search"
+               id="search"
+               class="filter-input"
+               placeholder="Search..."
+               value="{{ request.args.get('search', '') }}">
+
+        <button type="submit" class="btn-search">Search</button>
+        <a href="/get_full_data" class="filter-clear">Clear</a>
+    </form>
+</div>
+    <ul class="recipe-list">
+        {% for recipe in recipes %}
+   <li class="recipe-card">
+    <div class="recipe-header">
+        <img src="{{ recipe.img }}" alt="{{ recipe.title }}" width="100" height="100">
+        <h2 class="recipe-title">{{ recipe.title }}</h2>
+        <a href="{{ url_for('delete_recipe', url=recipe.url) }}"
+         class="btn-delete"
+         onclick="return confirm('Permanently delete this recipe?')">
+         Delete Recipe
+        </a>
+    </div>
+
+    <details>
+        <summary>View Ingredients</summary>
+        <div class="content">
+            {{ recipe.ingredients }}
+        </div>
+    </details>
+
+    <details>
+        <summary>View Instructions</summary>
+        <div class="content">
+            {{ recipe.instructions }}
+        </div>
+    </details>
+</li>
+        {% else %}
+            <li class="no-recipes" style="text-align: center; color: var(--text-muted);">No recipes found.</li>
+        {% endfor %}
+    </ul>
+
 </body>
 </html>

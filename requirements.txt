@@ -1,4 +1,5 @@
 flask
-requests
-beautifulsoup4
-curl-cffi
+recipe-scrapers
+curl_cffi
+pymongo
+gunicorn

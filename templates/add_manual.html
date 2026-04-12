@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipe Collection</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Add Manual Recipe</h1>
+    <form ACTION="/add_manual" method="POST" class="form-group">
+        <input type="text" name="title" placeholder="Recipe Title" required>
+        <input type="text" name="category" placeholder="Category (e.g., Pasta)">
+        <input type="number" name="cook_time" placeholder="Total Time (minutes)">
+        <input type="url" name="img" placeholder="Image URL (optional)">
+
+        <textarea  name="ingredients" placeholder="Ingredients (one per line)" style="height: 100px;"></textarea>
+        <textarea name="instructions" placeholder="Instructions" style="height: 150px;"></textarea>
+
+        <button type="submit" class="btn">Save Recipe</button>
+        <a href="{{ url_for('get_recipe') }}" class="btn-back">Cancel and Go Back</a>
+    </form>
+    {% if error %}
+    <p class="status-msg msg-error">{{ error }}</p>
+{% endif %}
+
+{% if msg %}
+    <p class="status-msg msg-success">{{ msg }}</p>
+{% endif %}
+</div>
+</body>
+</html>
