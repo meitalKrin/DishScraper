@@ -5,6 +5,7 @@ import pymongo
 import os
 import certifi
 import gc
+import random
 
 app = Flask(__name__)
 
@@ -117,9 +118,18 @@ def back_page():
 
 @app.route('/delete_recipe')
 def delete_recipe():
-    url_to_delete = request.args.get('url')
-    if url_to_delete:
-        mycol.delete_one({"url": url_to_delete})
+    val = request.args.get('url')
+
+    if val:
+        # Create a list of possible matches
+        # e.g., ["12345", 12345]
+        possible_matches = [val]
+        if val.isdigit():
+            possible_matches.append(int(val))
+
+        # Delete the document if 'url' matches any item in the list
+        mycol.delete_one({"url": {"$in": possible_matches}})
+
     return redirect(url_for('get_full_data'))
 
 
@@ -156,7 +166,7 @@ def add_manual():
                 instructions = "No instructions found."
 
             result = mycol.update_one(
-                {"url": url},
+                {"url": random.randint(1, 99999999999999)},
                 {"$set": {"img": img, "title": title, "cook_time": cook_time, "category": category,
                           "ingredients": ingredients, "instructions": instructions}},
                 upsert=True
