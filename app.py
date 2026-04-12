@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://km:km@cluster0.0kvlnbn.mongodb.net/MyFullDB?retryWrites=true&w=majority")
 
 try:
     myclient = pymongo.MongoClient(MONGO_URI)
@@ -164,5 +164,5 @@ def add_manual():
     return render_template("add_manual.html", msg=msg, error=error)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
